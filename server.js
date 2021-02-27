@@ -67,7 +67,7 @@ const viewOptions = () => {
             name: 'choice',
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View Employees', /*'View Roles', 'View Departments', */'Start Menu']
+            choices: ['View Employees', 'View Roles', 'View Departments', 'Start Menu']
         }
     ])
     .then((answer) => {
@@ -75,14 +75,12 @@ const viewOptions = () => {
             case 'View Employees':
                 viewEmployees();
                 break;
-                /*
             case 'View Roles':
                 viewRoles();
                 break;
             case 'View Departments':
                 viewDepartments();
-                break;
-                */   
+                break;   
             case 'Start Menu':
                 start();
                 break;
@@ -94,6 +92,32 @@ const viewOptions = () => {
 const viewEmployees = () => {
     const query = connection.query(
         `SELECT * FROM employee`,
+        function(err, res) {
+            if(err) throw err;
+            console.log('');
+            console.table(res);
+            viewOptions();
+        })
+        
+        console.log(query.sql);
+}
+
+const viewRoles = () => {
+    const query = connection.query(
+        `SELECT * FROM role`,
+        function(err, res) {
+            if(err) throw err;
+            console.log('');
+            console.table(res);
+            viewOptions();
+        })
+        
+        console.log(query.sql);
+}
+
+const viewDepartments = () => {
+    const query = connection.query(
+        `SELECT * FROM department`,
         function(err, res) {
             if(err) throw err;
             console.log('');
