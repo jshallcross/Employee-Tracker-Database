@@ -1,0 +1,25 @@
+{
+  "name": "employee-tracker-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jshallcross/Employee-Tracker-Database.git"
+  },
+  "author": "Jon Shallcross",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jshallcross/Employee-Tracker-Database/issues"
+  },
+  "homepage": "https://github.com/jshallcross/Employee-Tracker-Database#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.0.0",
+    "mysql2": "^2.2.5"
+  }
+}
