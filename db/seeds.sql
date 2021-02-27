@@ -1,24 +1,12 @@
 USE employeeDB;
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+INSERT INTO department (deptName)
 VALUES 
-("Jon", "Shallcross", 2, null ),
-("Tarek", "Douseki", 1, null ),
-("Mike", "Donohue", 1, null ),
-("Shawn", "Warwick", 2, null ),
-("Tammy", "Wisdom", 2, null ),
-("Max", "Hornell", 3, null ),
-("Curtis", "Taylor", 3, null ),
-("Sean", "Tidevon", 3, null ),
-("Elena", "Gilmour", 4, null ),
-("Madison", "Shallcross", 5, null ),
-("Justice", "Shallcross", 5, null ),
-("Jacksyn", "Hamilton", 2, null ),
-("Ethan", "Shallcross", 3, null ),
-("Dave", "DeJong", 2, null ),
-("Dave", "Hornell", 2, null );
-
-
+("Manager"),
+("Bartender"),
+("Cook"),
+("Server"),
+("Host");
 
 
 INSERT INTO role (title, salary, department_id)
@@ -29,10 +17,22 @@ VALUES
 ("Server", 49750.25, 4),
 ("Host", 26750.75, 5);
 
-INSERT INTO department (deptName)
+
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES 
-("Manager"),
-("Bartender"),
-("Cook"),
-("Server"),
-("Host");
+("Jon", "Shallcross", 2, 1 ),
+("Tarek", "Douseki", 1, null ),
+("Mike", "Donohue", 1, null ),
+("Shawn", "Warwick", 2, 1 ),
+("Tammy", "Wisdom", 2, 1 ),
+("Max", "Hornell", 3, 1 ),
+("Curtis", "Taylor", 3, 1 ),
+("Sean", "Tidevon", 3, 1 ),
+("Elena", "Gilmour", 4, 2 ),
+("Madison", "Shallcross", 5, 2 ),
+("Justice", "Shallcross", 5, 2 ),
+("Jacksyn", "Hamilton", 2, 1 ),
+("Ethan", "Shallcross", 3, 1 ),
+("Dave", "DeJong", 2, 1 ),
+("Dave", "Hornell", 2, 1 );

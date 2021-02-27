@@ -90,16 +90,18 @@ const viewOptions = () => {
 
 
 const viewEmployees = () => {
-    const query = connection.query(
-        `SELECT * FROM employee`,
-        function(err, res) {
+    let query = 'SELECT A.id AS ID, A.first_name AS First, A.last_name AS Last, role.title AS Title, department.deptName AS Department, role.salary AS Salary, CONCAT (B.first_name, " " ,B.last_name) AS Manager ';
+    query += 'FROM employee A ';
+    query += 'LEFT JOIN role ON A.role_id = role.id ';
+    query += 'LEFT JOIN department ON role.department_id = department.id ';
+    query += 'LEFT JOIN employee B ON A.manager_id = B.id';
+    connection.query(query,(err, res) => {
             if(err) throw err;
             console.log('');
             console.table(res);
             viewOptions();
-        })
+        })      
         
-        console.log(query.sql);
 }
 
 const viewRoles = () => {

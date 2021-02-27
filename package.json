@@ -5,6 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "mysql db/employeeDB.db < db/schema.sql",
+    "seed": "mysql db/employeeDB.db < db/seeds.sql",
+    "db": "mysql db/employeeDB.db",
     "start": "node server.js"
   },
   "repository": {
