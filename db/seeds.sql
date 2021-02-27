@@ -16,12 +16,12 @@ VALUES
 ("Jacksyn", "Hamilton", 2, null ),
 ("Ethan", "Shallcross", 3, null ),
 ("Dave", "DeJong", 2, null ),
-("Dave", "Hornell", 2, null ),
+("Dave", "Hornell", 2, null );
 
 
 
 
-INSERT INTO empRole (title, salary, department_id)
+INSERT INTO role (title, salary, department_id)
 VALUES 
 ("Manager", 55250.00, 1),
 ("Bartender", 72500.50, 2),
