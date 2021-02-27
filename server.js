@@ -105,29 +105,28 @@ const viewEmployees = () => {
 }
 
 const viewRoles = () => {
-    const query = connection.query(
-        `SELECT * FROM role`,
-        function(err, res) {
+    let query = 'SELECT id AS ID, title AS Title, salary AS Salary, department_id AS Dept_ID';
+        query += ' FROM role';
+        connection.query(query,(err, res) => {
             if(err) throw err;
             console.log('');
             console.table(res);
             viewOptions();
         })
         
-        console.log(query.sql);
 }
+
+
 
 const viewDepartments = () => {
-    const query = connection.query(
-        `SELECT * FROM department`,
-        function(err, res) {
+    let query = 'SELECT id AS ID, deptName AS Department';
+        query += ' FROM department';
+        connection.query(query,(err, res) => {
             if(err) throw err;
             console.log('');
             console.table(res);
             viewOptions();
         })
         
-        console.log(query.sql);
 }
-
 
