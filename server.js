@@ -29,7 +29,7 @@ const start = () => {
             name: 'choice',
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View', /*'Add New', 'Edit Old', 'Delete',*/ 'Exit']
+            choices: ['View', 'Add New', /*'Edit Old', 'Delete',*/ 'Exit']
         }
     ])
     .then((answer) => {
@@ -37,10 +37,11 @@ const start = () => {
             case 'View':
                 viewOptions();
                 break;
-                /*
+                
             case 'Add New':
                 addOptions();
                 break;
+                /*
             case 'Edit Old':
                 editOptions();
                 break;
@@ -129,4 +130,125 @@ const viewDepartments = () => {
         })
         
 }
+
+const addOptions = () => {
+    inquirer.prompt([
+        {
+            name: 'action',
+            type: 'list',
+            message: 'What would you like to add?',
+            choices: ['Add Role', 'Add Department', 'Add Employee', 'Start Menu']
+        }
+    ])
+    .then((answer) => {
+        switch(answer.action) {
+            case 'Add Role':
+                addRole();
+                break;
+            case 'Add Department':
+                addDepartment();
+                break;
+            case 'Add Employee':
+                addEmployee();
+                break;
+            case 'Start Menu':
+                start();
+                break;
+        }
+    });
+}
+
+const addDepartment = () => {
+    inquirer.prompt([
+        {
+        type: "input",
+        name: "department",
+        message: "What department would you like to add?"
+        }
+    ])
+    .then((answer) => {
+
+        connection.query(`INSERT INTO department (deptName) VALUES ("${answer.department}");`, function(err, res) {
+                if (err) throw err;
+                start();
+            })
+    })
+}
+
+
+const addRole = () => {
+    let query = 'SELECT id FROM department';
+
+    connection.query(query,(err,res) =>{
+        if(err) throw err;
+        let deptIdArr = [];
+
+        for (let i = 0; i < res.length; i++) {
+            let departmentId =  res[i].id
+            deptIdArr.push(departmentId);
+    
+        }
+    
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: 'What role can we add to the database?'
+        },
+        {
+            type: 'number',
+            name: 'salary',
+            message: 'What is the salary for this role?'
+        },
+        {
+            type: 'list',
+            name: 'department_id',
+            message: 'What is the department id?',
+            choices: deptIdArr 
+        }
+    ])
+    .then((answers) => {
+        connection.query(`INSERT INTO role (title, salary, department_id) 
+        VALUES('${answers.title}', '${answers.salary}', '${answers.department_id}');`,
+        function(err, res) {
+            if (err) throw err;
+            start();
+        }
+    )
+})
+})
+}
+
+addEmployee = () => {
+
+}
+
+
+
+
+var nameArray = [];
+getNames = () => {
+    let query = 'SELECT CONCAT (first_name, last_name) AS name';  
+    query += 'FROM employee';
+    connection.query(query, (err, res) => {
+        for (var i = 0; i < res.length; i++) {
+            nameArray.push(res[i].name);
+        }
+
+    });
+    return nameArray;
+};
+
+
+var roleArray = [];
+getRoles= () => {
+    let query = "SELECT title FROM role"
+    connection.query(query, (err, res) => {
+        for (var i = 0; i < res.length; i++) {
+            roleArray.push(res[i].title);
+        }
+
+    });
+    return roleArray;
+};
 
