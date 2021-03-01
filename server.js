@@ -20,10 +20,26 @@ connection.connect(err => {
 
 
 const start = () => {
-    console.log('||==========================||');
-    console.log('||        EMPLOYEE          ||');
-    console.log('||        DATABASE          ||');
-    console.log('||==========================||');
+    introText = `
+    
+    ___  ___ ___  ____  _       ___   __ __    ___    ___ 
+   /  _]|   |   ||    \| |     /   \ |  |  |  /  _]  /  _]
+  /  [_ | _   _ ||  o  ) |    |     ||  |  | /  [_  /  [_ 
+ |    _]|  \_/  ||   _/| |___ |  O  ||  ~  ||    _]|    _]
+ |   [_ |   |   ||  |  |     ||     ||___, ||   [_ |   [_ 
+ |     ||   |   ||  |  |     ||     ||     ||     ||     |
+ |_____||___|___||__|  |_____| \___/ |____/ |_____||_____|
+                                                          
+  ___     ____  ______   ____  ____    ____  _____   ___  
+ |   \   /    ||      | /    ||    \  /    |/ ___/  /  _] 
+ |    \ |  o  ||      ||  o  ||  o  )|  o  (   \_  /  [_  
+ |  D  ||     ||_|  |_||     ||     ||     |\__  ||    _] 
+ |     ||  _  |  |  |  |  _  ||  O  ||  _  |/  \ ||   [_  
+ |     ||  |  |  |  |  |  |  ||     ||  |  |\    ||     | 
+ |_____||__|__|  |__|  |__|__||_____||__|__| \___||_____| 
+                                                          
+ `;
+console.log(introText);
     inquirer.prompt([
         {
             name: 'choice',
@@ -47,7 +63,7 @@ const start = () => {
                 break;
             case 'Delete Menu':
                 deleteOptions();
-                break;   
+                break; 
             case 'Exit':
                 console.log("GoodBye!");
                 connection.end();
@@ -279,49 +295,118 @@ updateItems = () => {
 
 
 // Update role function
-updateRole = () => {
-    let employees = []
-    let roles = []
-    connection.query("SELECT * FROM employee", function (err, res) {
+function updateRole() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'Which employee would you like to update? Choose by their ID#',
+            name: 'employee',
+        },
+        {
+            type: 'input',
+            message: 'Please add a new Role ID',
+            name: 'role',
+        },
+    ]).then((answer) => {
+    connection.query('UPDATE employee SET role_id=? WHERE id= ?;',
+    [answer.role, answer.employee],(err, res) => {
         if (err) throw err;
-        for (var i = 0; i < res.length; i++) {
-            employees.push(`${res[i].first_name} ${res[i].last_name}`)
+        updateItems();
+        })
+    });
+}
+
+// The delete options menu Not completed
+
+const deleteOptions = () => {
+    inquirer.prompt([
+        {
+            name: 'action',
+            type: 'list',
+            message: 'What would you like to delete?',
+            choices: ['Delete Employee','Delete Role', 'Delete Department', 'Start Menu']
         }
-        connection.query("SELECT * FROM role", function (err, resp) {
-            if (err) throw error;
-            for (var i = 0; i < resp.length; i++) {
-                roles.push(resp[i].title)
-            }
-            inquirer.prompt([
-                {
-                    type: "list",
-                    message: "Which employee would you like to update?",
-                    choices: employees,
-                    name: "employee"
-                },
-                {
-                    type: "list",
-                    message: "Which role would you like to assign?",
-                    choices: roles,
-                    name: "role"
-                }
-            ])
-            .then(answers => {
-                let chosenRole = resp.filter(r => r.title === answers.role)
-                let chosenEmployee = res.filter(m => {
-                    let match = `${m.first_name} ${m.last_name}`
-                    if (match === answers.employee) {
-                        return m;
-                    }
-                })
-                connection.query("UPDATE employee SET ? WHERE ?", [{ role_id: chosenRole[0].id }, { id: chosenEmployee[0].id }], (err, res) => {
-                    if (err) throw err;             
-                    viewRoles()
-                })
-            })
+    ])
+    .then((answer) => {
+        switch(answer.action) {
+            case 'Delete Employee':
+                deleteEmployee();
+                break;
+            case 'Delete Role':
+                deleteRole();
+                break;
+            case 'Delete Department':
+                deleteDepartment();
+                break;
+            case 'Start Menu':
+                start();
+                break;
+        }
+    });
+}
+
+//Delete employee function
+deleteEmployee = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the FIRST NAME of the employee do you want to delete?",
+            name: "firstName"
+        },
+        {
+            type: "input",
+            message: "What is the LAST NAME of the employee do you want to delete?",
+            name: "lastName"
+        },
+    ])
+    .then((answer) => {
+    connection.query('DELETE FROM employee WHERE first_name=? AND last_name=?;',
+    [answer.firstName, answer.lastName], (err, res) => {
+        if (err) throw err;
+        deleteOptions();
+        })
+    });
+};
+
+
+// Delete department function
+deleteDepartment = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'Which department do you want to delete?',
+            name: 'deleteDepartment'
+        }, 
+    ])
+    .then((answer) => {
+    connection.query('DELETE FROM department WHERE deptName=?;', 
+    [answer.deleteDepartment], (err, res) => {
+        if (err) throw err;
+        deleteOptions();
         })
     })
-}
+};
+
+//Delete role function
+deleteRole = () => {
+    inquirer.prompt([
+        {
+        type: 'input',
+        message: 'Which Role do you want to delete?',
+        name: 'deleteRole',
+        },
+    ])
+    .then((answer) => {
+    connection.query('DELETE FROM role WHERE title= ?;', 
+    [answer.deleteRole], (err, res) => {
+        if (err) throw err;
+        deleteOptions();
+        })
+    })
+};
+
+
+
 
 // Get names function
 let nameArray = [];
@@ -332,13 +417,12 @@ getNames = () => {
         for (var i = 0; i < res.length; i++) {
             nameArray.push(`${res[i].id} ${res[i].first_name} ${res[i].last_name}`);
         }
-
     });
     return nameArray;
 };
 
 // Get roles function
-let roleArr = [];
+let roleArray = [];
 getRoles= () => {
     let query = "SELECT * FROM role"
     connection.query(query, (err, res) => {
@@ -346,7 +430,7 @@ getRoles= () => {
             roleArray.push(`${res[i].id} ${res[i].title}`);
         }
     });
-    return roleArr;
+    return roleArray;
 };
 
 
