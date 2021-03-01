@@ -170,7 +170,7 @@ const addDepartment = () => {
 
         connection.query(`INSERT INTO department (deptName) VALUES ("${answer.department}");`, function(err, res) {
                 if (err) throw err;
-                start();
+                viewDepartments();
             })
     })
 }
@@ -212,7 +212,7 @@ const addRole = () => {
         VALUES('${answers.title}', '${answers.salary}', '${answers.department_id}');`,
         function(err, res) {
             if (err) throw err;
-            start();
+            viewRoles();
         }
     )
 })
@@ -220,7 +220,39 @@ const addRole = () => {
 }
 
 addEmployee = () => {
-
+    inquirer.prompt([
+        {
+            name: 'firstName',
+            type: 'input',
+            message: "What is the employee's first Name?",            
+        },
+        {
+            name: 'lastName',
+            type: 'input',
+            message: "What is the employee's last name?",
+        },
+        {
+            name: 'role',
+            type: 'list',
+            message: 'What role will this employee have?',
+            choices: getRoles() 
+        },
+        {
+            name: 'manager',
+            type: 'list',
+            message: "Who is the manager of this employee?",
+            choices: getNames()
+        }
+    ])
+    .then((answers) => {
+        
+        connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) 
+        VALUES('${answers.firstName}', '${answers.lastName}', '${answers.role.substr(0, answers.role.lastIndexOf(" "))}','${answers.manager.substr(0, answers.role.lastIndexOf(" "))}');`,
+        function(err, res) {
+            if (err) throw err;
+            viewEmployees();
+        })
+    })
 }
 
 
@@ -228,11 +260,11 @@ addEmployee = () => {
 
 var nameArray = [];
 getNames = () => {
-    let query = 'SELECT CONCAT (first_name, last_name) AS name';  
-    query += 'FROM employee';
+    let query = 'SELECT * FROM employee '; 
+
     connection.query(query, (err, res) => {
         for (var i = 0; i < res.length; i++) {
-            nameArray.push(res[i].name);
+            nameArray.push(`${res[i].id} ${res[i].first_name} ${res[i].last_name}`);
         }
 
     });
@@ -240,15 +272,18 @@ getNames = () => {
 };
 
 
+
+
 var roleArray = [];
 getRoles= () => {
-    let query = "SELECT title FROM role"
+    let query = "SELECT * FROM role"
     connection.query(query, (err, res) => {
         for (var i = 0; i < res.length; i++) {
-            roleArray.push(res[i].title);
+            roleArray.push(`${res[i].id} ${res[i].title}`);
         }
 
     });
     return roleArray;
 };
+
 
