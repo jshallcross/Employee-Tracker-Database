@@ -29,39 +29,35 @@ const start = () => {
             name: 'choice',
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View', 'Add New', /*'Edit Old', 'Delete',*/ 'Exit']
+            choices: ['View Menu', 'Add Menu', 'Update Menu','Delete Menu', 'Exit']
         }
     ])
     .then((answer) => {
         switch(answer.choice) {
-            case 'View':
+            case 'View Menu':
                 viewOptions();
                 break;
                 
-            case 'Add New':
+            case 'Add Menu':
                 addOptions();
                 break;
-                /*
-            case 'Edit Old':
-                editOptions();
+                
+            case 'Update Menu':
+                updateItems();
                 break;
-            
-            Bonus feature
-            case 'Delete':
+            case 'Delete Menu':
                 deleteOptions();
-                break;
-            */    
+                break;   
             case 'Exit':
                 console.log("GoodBye!");
                 connection.end();
-                break;
-            default:
-                console.log("What did you do?");
                 break;
         }
     });
 };
 
+
+// The View Options Menu
 const viewOptions = () => {
     inquirer.prompt([
         {
@@ -89,7 +85,7 @@ const viewOptions = () => {
     });
 }
 
-
+// View all employees table
 const viewEmployees = () => {
     let query = 'SELECT A.id AS ID, A.first_name AS First, A.last_name AS Last, role.title AS Title, department.deptName AS Department, role.salary AS Salary, CONCAT (B.first_name, " " ,B.last_name) AS Manager ';
     query += 'FROM employee A ';
@@ -105,6 +101,7 @@ const viewEmployees = () => {
         
 }
 
+//View all roles table
 const viewRoles = () => {
     let query = 'SELECT id AS ID, title AS Title, salary AS Salary, department_id AS Dept_ID';
         query += ' FROM role';
@@ -117,8 +114,7 @@ const viewRoles = () => {
         
 }
 
-
-
+// View all departments table
 const viewDepartments = () => {
     let query = 'SELECT id AS ID, deptName AS Department';
         query += ' FROM department';
@@ -131,6 +127,7 @@ const viewDepartments = () => {
         
 }
 
+// The add options mneu
 const addOptions = () => {
     inquirer.prompt([
         {
@@ -158,6 +155,7 @@ const addOptions = () => {
     });
 }
 
+// add department function
 const addDepartment = () => {
     inquirer.prompt([
         {
@@ -175,17 +173,17 @@ const addDepartment = () => {
     })
 }
 
-
+// add role function
 const addRole = () => {
-    let query = 'SELECT id FROM department';
+    let query = 'SELECT * FROM department';
 
     connection.query(query,(err,res) =>{
         if(err) throw err;
         let deptIdArr = [];
 
         for (let i = 0; i < res.length; i++) {
-            let departmentId =  res[i].id
-            deptIdArr.push(departmentId);
+            
+            deptIdArr.push(`${res[i].id} ${res[i].deptName}`);
     
         }
     
@@ -204,13 +202,13 @@ const addRole = () => {
             type: 'list',
             name: 'department_id',
             message: 'What is the department id?',
-            choices: deptIdArr 
+            choices: deptIdArr
         }
     ])
     .then((answers) => {
         connection.query(`INSERT INTO role (title, salary, department_id) 
-        VALUES('${answers.title}', '${answers.salary}', '${answers.department_id}');`,
-        function(err, res) {
+        VALUES('${answers.title}', '${answers.salary}', '${answers.department_id.substr(0, answers.department_id.lastIndexOf(" "))}');`,
+        function(err, res) {                            
             if (err) throw err;
             viewRoles();
         }
@@ -219,6 +217,7 @@ const addRole = () => {
 })
 }
 
+// add an employee function
 addEmployee = () => {
     inquirer.prompt([
         {
@@ -255,10 +254,77 @@ addEmployee = () => {
     })
 }
 
+// Update items menu
+updateItems = () => {
+    inquirer.prompt([
+        {
+            name: 'action',
+            type: 'list',
+            message: 'What would you like to add?',
+            choices: ['Update Role', 'Start Menu']
+        }
+    ])
+    .then((answer) => {
+        switch(answer.action) 
+        {
+            case 'Update Role':
+                updateRole();
+                break;
+            case 'Start Menu':
+                start();
+                break;
+        }
+    });
+}
 
 
+// Update role function
+updateRole = () => {
+    let employees = []
+    let roles = []
+    connection.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+        for (var i = 0; i < res.length; i++) {
+            employees.push(`${res[i].first_name} ${res[i].last_name}`)
+        }
+        connection.query("SELECT * FROM role", function (err, resp) {
+            if (err) throw error;
+            for (var i = 0; i < resp.length; i++) {
+                roles.push(resp[i].title)
+            }
+            inquirer.prompt([
+                {
+                    type: "list",
+                    message: "Which employee would you like to update?",
+                    choices: employees,
+                    name: "employee"
+                },
+                {
+                    type: "list",
+                    message: "Which role would you like to assign?",
+                    choices: roles,
+                    name: "role"
+                }
+            ])
+            .then(answers => {
+                let chosenRole = resp.filter(r => r.title === answers.role)
+                let chosenEmployee = res.filter(m => {
+                    let match = `${m.first_name} ${m.last_name}`
+                    if (match === answers.employee) {
+                        return m;
+                    }
+                })
+                connection.query("UPDATE employee SET ? WHERE ?", [{ role_id: chosenRole[0].id }, { id: chosenEmployee[0].id }], (err, res) => {
+                    if (err) throw err;             
+                    viewRoles()
+                })
+            })
+        })
+    })
+}
 
-var nameArray = [];
+// Get names function
+let nameArray = [];
 getNames = () => {
     let query = 'SELECT * FROM employee '; 
 
@@ -271,19 +337,16 @@ getNames = () => {
     return nameArray;
 };
 
-
-
-
-var roleArray = [];
+// Get roles function
+let roleArr = [];
 getRoles= () => {
     let query = "SELECT * FROM role"
     connection.query(query, (err, res) => {
         for (var i = 0; i < res.length; i++) {
             roleArray.push(`${res[i].id} ${res[i].title}`);
         }
-
     });
-    return roleArray;
+    return roleArr;
 };
 
 
